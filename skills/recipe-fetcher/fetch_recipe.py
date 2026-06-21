@@ -1,12 +1,12 @@
 """Entrypoint delgado de la skill `recipe-fetcher`.
 
 Orquesta (no calcula): pega el adaptador `JsonLdSource` con el puerto `RecipeRepository`
-(`FileRepository`). Toda la lógica determinista vive en los adaptadores/dominio.
+(`FileRepository`) y encadena el clasificador (Fase 2) automáticamente.
 
 Uso:
-    python skills/recipe-fetcher/fetch_recipe.py <url> [--out-dir recipes]
+    python skills/recipe-fetcher/fetch_recipe.py <url> [--out-dir recipes] [--no-classify]
 
-Imprime una línea JSON con el resultado (slug y ruta) para que la skill la encadene.
+Imprime una línea JSON con el resultado (slug, ruta y affinity_score) para que la skill la encadene.
 """
 
 from __future__ import annotations
@@ -33,6 +33,11 @@ def main(argv: list[str] | None = None) -> int:
         default=str(_REPO_ROOT / "recipes"),
         help="Directorio destino (por defecto: recipes/)",
     )
+    parser.add_argument(
+        "--no-classify",
+        action="store_true",
+        help="No encadenar el clasificador tras la descarga.",
+    )
     args = parser.parse_args(argv)
 
     source = JsonLdSource()
@@ -45,10 +50,38 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     repo.save(recipe)
+
+    affinity_score = None
+    if not args.no_classify:
+        try:
+            import importlib.util
+
+            spec = importlib.util.spec_from_file_location(
+                "classify_recipe",
+                _REPO_ROOT / "skills" / "recipe-classifier" / "classify_recipe.py",
+            )
+            mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
+            spec.loader.exec_module(mod)  # type: ignore[union-attr]
+
+            prefs_path = _REPO_ROOT / "preferences.json"
+            profile = mod.TasteProfile.from_dict(
+                json.loads(prefs_path.read_text(encoding="utf-8"))
+            )
+            mod.classify_slug(recipe.slug, repo, profile)
+            affinity_score = repo.get(recipe.slug).affinity_score  # type: ignore[union-attr]
+        except Exception as exc:  # noqa: BLE001
+            print(f"[WARN] Clasificador no disponible: {exc}", file=sys.stderr)
+
     out_path = Path(args.out_dir) / f"{recipe.slug}.json"
     print(
         json.dumps(
-            {"ok": True, "slug": recipe.slug, "title": recipe.title, "path": str(out_path)},
+            {
+                "ok": True,
+                "slug": recipe.slug,
+                "title": recipe.title,
+                "path": str(out_path),
+                "affinity_score": affinity_score,
+            },
             ensure_ascii=False,
         )
     )

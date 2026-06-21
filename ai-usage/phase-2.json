@@ -1,0 +1,27 @@
+{
+  "phase": 2,
+  "title": "Skill recipe-classifier + affinity_score",
+  "date": "2026-06-21",
+  "author": "@Jrgil20",
+  "tool": {
+    "name": "Claude Code",
+    "model": "claude-sonnet-4-6"
+  },
+  "ai_generated": [
+    "core/domain/affinity.py (score ponderado, 5 dimensiones, rúbrica documentada)",
+    "skills/recipe-classifier/classify_recipe.py (normalización + cálculo + classified_at)",
+    "skills/recipe-classifier/SKILL.md (rúbrica detallada, heurísticas, uso)",
+    "tests/test_affinity.py (11 casos fijos con valores calculados manualmente)",
+    "Encadenamiento fetch_recipe.py -> classify_recipe.py"
+  ],
+  "human_modified": [],
+  "verification": {
+    "pytest": "34 passed",
+    "ruff": "All checks passed",
+    "smoke": "pasta-al-pesto -> affinity_score=0.98, classified_at=2026-06-21T..."
+  },
+  "out_of_scope_next": {
+    "fase_3": "skill recipe-page-builder + app Astro (catálogo + página interactiva)",
+    "fase_4": "adapters/supabase_repository.py"
+  }
+}
