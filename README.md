@@ -14,9 +14,20 @@ y expone tres capacidades operadas por Claude Skills:
 
 ## Estado
 
-**Fase 0 — completada**: núcleo de dominio (`Recipe`, `TasteProfile`), puertos
-(`RecipeRepository`, `RecipeSource`, `PageRenderer`) y el adaptador `FileRepository`
-(persistencia en `recipes/*.json`). Roadmap completo en [`CLAUDE.md`](CLAUDE.md) §8.
+- **Fase 0 — completada**: núcleo de dominio (`Recipe`, `TasteProfile`), puertos
+  (`RecipeRepository`, `RecipeSource`, `PageRenderer`) y el adaptador `FileRepository`
+  (persistencia en `recipes/*.json`).
+- **Fase 1 — completada**: skill [`recipe-fetcher`](skills/recipe-fetcher/SKILL.md) + adaptador
+  `JsonLdSource` (URL → receta vía schema.org/Recipe con `recipe-scrapers`).
+
+Roadmap completo en [`CLAUDE.md`](CLAUDE.md) §8.
+
+## Descargar una receta
+
+```bash
+python skills/recipe-fetcher/fetch_recipe.py "https://www.bbcgoodfood.com/recipes/easy-chocolate-cake"
+# -> recipes/easy-chocolate-cake.json
+```
 
 ## Stack
 

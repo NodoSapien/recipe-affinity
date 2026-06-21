@@ -1,0 +1,35 @@
+{
+  "phase": 1,
+  "title": "Skill recipe-fetcher + adaptador JsonLdSource",
+  "date": "2026-06-21",
+  "author": "@Jrgil20",
+  "tool": {
+    "name": "Claude Code",
+    "model": "claude-opus-4-8"
+  },
+  "ai_generated": [
+    "adapters/jsonld_source.py (JsonLdSource.fetch/from_html con recipe-scrapers, supported_only=False)",
+    "Parser determinista de ingredientes: enteros, decimales, fracciones simples/mixtas/unicode + unidades es/métricas",
+    "skills/recipe-fetcher/fetch_recipe.py (entrypoint CLI delgado: JsonLdSource + FileRepository)",
+    "skills/recipe-fetcher/SKILL.md (orquestación, sin lógica de cálculo)",
+    "tests/test_jsonld_source.py + tests/fixtures/pasta.html (10 tests offline)",
+    "Dependencia recipe-scrapers>=15 en pyproject.toml; README actualizado"
+  ],
+  "human_modified": [],
+  "verification": {
+    "viability": "recipe-scrapers instala y parsea JSON-LD offline en Python 3.14",
+    "pytest": "23 passed (13 previos + 10 nuevos)",
+    "ruff": "All checks passed",
+    "real_urls_ok": [
+      "bbcgoodfood.com (Easy chocolate cake)",
+      "budgetbytes.com (Slow Cooker Chicken Tortilla Soup: 20 ingredientes, 6 pasos)"
+    ],
+    "real_urls_blocked_graceful": [
+      "allrecipes.com / simplyrecipes.com (HTTP 403, error controlado {ok:false})"
+    ]
+  },
+  "notes": "Solo se rellenan campos provistos por la fuente; los parametros derivados y affinity_score los completa recipe-classifier (Fase 2).",
+  "out_of_scope_next": {
+    "fase_2": "skill recipe-classifier + core/domain/affinity.py (normaliza parametros faltantes y calcula affinity_score)"
+  }
+}

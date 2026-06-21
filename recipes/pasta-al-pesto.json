@@ -1,8 +1,8 @@
 {
-  "id": "6962a0a3-31be-491a-b329-7b849d4f70cb",
+  "id": "5310421b-cf41-44c1-8ed9-da1da0788dd6",
   "slug": "pasta-al-pesto",
-  "title": "Pasta al pesto",
-  "source_url": null,
+  "title": "Pasta al Pesto",
+  "source_url": "https://example.com/pasta-al-pesto",
   "language": "es",
   "servings": 4,
   "ingredients": [
@@ -10,17 +10,38 @@
       "name": "albahaca fresca",
       "amount": 60,
       "unit": "g"
+    },
+    {
+      "name": "pasta",
+      "amount": 400,
+      "unit": "g"
+    },
+    {
+      "name": "ajo",
+      "amount": 2,
+      "unit": "dientes"
+    },
+    {
+      "name": "aceite de oliva",
+      "amount": 0.5,
+      "unit": "taza"
+    },
+    {
+      "name": "Sal al gusto",
+      "amount": null,
+      "unit": null
     }
   ],
   "steps": [
-    "Hervir la pasta...",
-    "Triturar la albahaca..."
+    "Hervir la pasta en agua con sal.",
+    "Triturar la albahaca con el ajo y el aceite.",
+    "Mezclar la pasta con el pesto y servir."
   ],
-  "time_total_min": null,
+  "time_total_min": 25,
   "time_active_min": null,
   "difficulty": null,
   "cuisine": "italiana",
-  "meal_type": "almuerzo",
+  "meal_type": null,
   "diet_tags": [],
   "main_ingredients": [],
   "techniques": [],
@@ -28,7 +49,7 @@
   "affinity_score": 0.0,
   "my_rating": null,
   "notes": "",
-  "created_at": "2026-06-21T04:31:45Z",
+  "created_at": "2026-06-21T04:41:55Z",
   "classified_at": null,
   "tags": []
 }

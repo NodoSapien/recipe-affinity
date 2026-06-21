@@ -6,8 +6,8 @@ readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "Jrgil20" }]
 license = { text = "MIT" }
-# Sin dependencias de runtime en Fase 0; el scraping (recipe-scrapers) llega en Fase 1.
-dependencies = []
+# Fase 1: scraping de schema.org/Recipe (JSON-LD) con fallback genérico.
+dependencies = ["recipe-scrapers>=15"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6"]
