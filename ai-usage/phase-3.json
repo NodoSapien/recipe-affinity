@@ -1,0 +1,31 @@
+{
+  "phase": 3,
+  "title": "Skill recipe-page-builder + app Astro",
+  "date": "2026-06-21",
+  "author": "@Jrgil20",
+  "tool": {
+    "name": "Claude Code",
+    "model": "claude-sonnet-4-6"
+  },
+  "ai_generated": [
+    "app/ scaffold con Astro v6 (npm create astro, template minimal)",
+    "app/src/content.config.ts: schema Zod + glob loader para recipes/*.json",
+    "app/astro.config.mjs: output static",
+    "app/src/styles/global.css: estilos del catalogo y pagina detalle",
+    "app/src/pages/index.astro: catalogo con filtros client-side (busqueda, cocina, meal_type, orden)",
+    "app/src/pages/recipes/[slug].astro: escalador de porciones, checklist, timers por paso (vanilla JS)",
+    "adapters/astro_renderer.py: implementa PageRenderer, escritura atomica en content collection",
+    "skills/recipe-page-builder/build_page.py: CLI con --all y --build",
+    "skills/recipe-page-builder/SKILL.md"
+  ],
+  "human_modified": [],
+  "verification": {
+    "pytest": "34 passed",
+    "ruff": "All checks passed",
+    "astro_build": "2 pages built (index + pasta-al-pesto)",
+    "smoke": "build_page.py pasta-al-pesto --build -> app/dist/ generado"
+  },
+  "out_of_scope_next": {
+    "fase_4": "adapters/supabase_repository.py (migracion BD sin tocar skills)"
+  }
+}

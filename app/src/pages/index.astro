@@ -1,0 +1,128 @@
+---
+import { getCollection } from "astro:content";
+import "../styles/global.css";
+
+const allRecipes = await getCollection("recipes");
+const recipes = allRecipes
+  .map((e) => e.data)
+  .sort((a, b) => b.affinity_score - a.affinity_score);
+
+function affinityClass(score: number) {
+  if (score >= 0.75) return "affinity-high";
+  if (score >= 0.45) return "affinity-mid";
+  return "affinity-low";
+}
+
+const cuisines = [...new Set(recipes.map((r) => r.cuisine).filter(Boolean))].sort();
+const mealTypes = [...new Set(recipes.map((r) => r.meal_type).filter(Boolean))].sort();
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>recipe-affinity — Mi recetario</title>
+  </head>
+  <body>
+    <header>
+      <a href="/" class="brand">recipe-affinity</a>
+      <span style="color:var(--color-muted);font-size:.85rem">
+        {recipes.length} receta{recipes.length !== 1 ? "s" : ""}
+      </span>
+    </header>
+
+    <main>
+      <div id="filter-bar">
+        <input id="q" type="search" placeholder="Buscar receta..." style="flex:1;min-width:180px" />
+        <select id="sel-cuisine">
+          <option value="">Todas las cocinas</option>
+          {cuisines.map((c) => <option value={c}>{c}</option>)}
+        </select>
+        <select id="sel-meal">
+          <option value="">Todos los momentos</option>
+          {mealTypes.map((m) => <option value={m}>{m}</option>)}
+        </select>
+        <select id="sel-sort">
+          <option value="affinity">Ordenar: Afinidad</option>
+          <option value="title">Ordenar: Título</option>
+          <option value="time">Ordenar: Tiempo</option>
+        </select>
+      </div>
+
+      <div class="recipe-grid" id="recipe-grid">
+        {recipes.map((r) => (
+          <a
+            href={`/recipes/${r.slug}`}
+            class="recipe-card"
+            data-title={r.title.toLowerCase()}
+            data-cuisine={r.cuisine ?? ""}
+            data-meal={r.meal_type ?? ""}
+            data-affinity={r.affinity_score}
+            data-time={r.time_total_min ?? 9999}
+          >
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem">
+              <h2>{r.title}</h2>
+              <span class={`affinity-badge ${affinityClass(r.affinity_score)}`}>
+                {(r.affinity_score * 100).toFixed(0)}%
+              </span>
+            </div>
+            <div class="meta">
+              {r.cuisine && <span>{r.cuisine}</span>}
+              {r.cuisine && r.meal_type && " · "}
+              {r.meal_type && <span>{r.meal_type}</span>}
+              {(r.cuisine || r.meal_type) && r.time_total_min && " · "}
+              {r.time_total_min && <span>{r.time_total_min} min</span>}
+            </div>
+            {r.difficulty && (
+              <div class="meta">Dificultad: {r.difficulty}</div>
+            )}
+          </a>
+        ))}
+      </div>
+
+      <p id="no-results" style="display:none;color:var(--color-muted);margin-top:2rem">
+        Ninguna receta coincide con los filtros.
+      </p>
+    </main>
+
+    <script>
+      const grid = document.getElementById("recipe-grid")!;
+      const cards = [...grid.querySelectorAll<HTMLElement>(".recipe-card")];
+      const noResults = document.getElementById("no-results")!;
+
+      const q = document.getElementById("q") as HTMLInputElement;
+      const selCuisine = document.getElementById("sel-cuisine") as HTMLSelectElement;
+      const selMeal = document.getElementById("sel-meal") as HTMLSelectElement;
+      const selSort = document.getElementById("sel-sort") as HTMLSelectElement;
+
+      function filter() {
+        const text = q.value.toLowerCase();
+        const cuisine = selCuisine.value;
+        const meal = selMeal.value;
+        const sort = selSort.value;
+
+        let visible = cards.filter((c) => {
+          const matchText = !text || c.dataset.title!.includes(text);
+          const matchCuisine = !cuisine || c.dataset.cuisine === cuisine;
+          const matchMeal = !meal || c.dataset.meal === meal;
+          return matchText && matchCuisine && matchMeal;
+        });
+
+        visible.sort((a, b) => {
+          if (sort === "title") return a.dataset.title!.localeCompare(b.dataset.title!);
+          if (sort === "time") return Number(a.dataset.time) - Number(b.dataset.time);
+          return Number(b.dataset.affinity) - Number(a.dataset.affinity);
+        });
+
+        cards.forEach((c) => (c.style.display = "none"));
+        visible.forEach((c) => {
+          c.style.display = "";
+          grid.appendChild(c);
+        });
+        noResults.style.display = visible.length === 0 ? "" : "none";
+      }
+
+      [q, selCuisine, selMeal, selSort].forEach((el) => el.addEventListener("input", filter));
+    </script>
+  </body>
+</html>

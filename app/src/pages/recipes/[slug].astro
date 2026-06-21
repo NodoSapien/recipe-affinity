@@ -1,0 +1,168 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import "../../styles/global.css";
+
+export async function getStaticPaths() {
+  const recipes = await getCollection("recipes");
+  return recipes.map((entry) => ({ params: { slug: entry.data.slug }, props: { entry } }));
+}
+
+interface Props { entry: CollectionEntry<"recipes">; }
+const { entry } = Astro.props;
+const r = entry.data;
+
+function fmtAmount(amount: number | null | undefined, unit: string | null | undefined): string {
+  if (amount == null) return "";
+  const a = Number.isInteger(amount) ? amount.toString() : amount.toFixed(2).replace(/\.?0+$/, "");
+  return unit ? `${a} ${unit}` : a;
+}
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{r.title} — recipe-affinity</title>
+  </head>
+  <body>
+    <header>
+      <a href="/" class="brand">recipe-affinity</a>
+      <span style="color:var(--color-muted)">/</span>
+      <span style="font-size:.9rem;color:var(--color-muted)">{r.title}</span>
+    </header>
+
+    <main>
+      <div class="recipe-detail">
+        <h1>{r.title}</h1>
+        <div class="meta-row">
+          {r.cuisine && <span>{r.cuisine}</span>}
+          {r.meal_type && <span> · {r.meal_type}</span>}
+          {r.time_total_min && <span> · {r.time_total_min} min totales</span>}
+          {r.time_active_min && <span> · {r.time_active_min} min activos</span>}
+          {r.difficulty && <span> · dificultad {r.difficulty}</span>}
+          &nbsp;·&nbsp;
+          <span
+            class={`affinity-badge ${r.affinity_score >= 0.75 ? "affinity-high" : r.affinity_score >= 0.45 ? "affinity-mid" : "affinity-low"}`}
+          >
+            afinidad {(r.affinity_score * 100).toFixed(0)}%
+          </span>
+        </div>
+
+        {r.source_url && (
+          <p style="font-size:.85rem;color:var(--color-muted)">
+            Fuente: <a href={r.source_url} target="_blank" rel="noopener">{r.source_url}</a>
+          </p>
+        )}
+
+        <!-- ─── Escalador de porciones ─── -->
+        <section>
+          <h2 style="font-size:1.1rem">Ingredientes</h2>
+          <div class="servings-control">
+            <button id="dec">−</button>
+            <span>
+              <span id="servings-num">{r.servings}</span> porcion<span id="servings-s">{r.servings !== 1 ? "es" : ""}</span>
+            </span>
+            <button id="inc">+</button>
+            <span style="font-size:.8rem;color:var(--color-muted)" id="scale-label"></span>
+          </div>
+          <ul class="ingredients-list" id="ingredients-list">
+            {r.ingredients.map((ing, i) => (
+              <li id={`ing-${i}`}>
+                <input type="checkbox" id={`chk-${i}`} />
+                <span>
+                  <span class="ing-amount" data-base={ing.amount ?? ""} data-unit={ing.unit ?? ""}>{fmtAmount(ing.amount, ing.unit)}</span>
+                  {ing.amount ? " " : ""}{ing.name}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <!-- ─── Pasos con timers ─── -->
+        <section style="margin-top:2rem">
+          <h2 style="font-size:1.1rem">Preparacion</h2>
+          <ol class="steps-list">
+            {r.steps.map((step) => {
+              const mins = step.match(/(\d+)\s*min/i)?.[1];
+              return (
+                <li>
+                  <span>{step}</span>
+                  {mins && (
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:.25rem">
+                      <button class="timer-btn" data-minutes={mins}>
+                        {mins} min
+                      </button>
+                      <span class="timer-display" style="display:none"></span>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+
+        {r.notes && (
+          <section style="margin-top:1.5rem;padding:1rem;background:var(--color-accent-light);border-radius:var(--radius)">
+            <strong>Notas:</strong> {r.notes}
+          </section>
+        )}
+      </div>
+    </main>
+
+    <script define:vars={{ baseServings: r.servings }}>
+      // ── Escalador de porciones ──
+      let current = baseServings;
+      const numEl = document.getElementById("servings-num");
+      const sEl = document.getElementById("servings-s");
+      const label = document.getElementById("scale-label");
+
+      function updateServings() {
+        numEl.textContent = current;
+        sEl.textContent = current !== 1 ? "es" : "";
+        const ratio = baseServings > 0 ? current / baseServings : 1;
+        label.textContent = ratio !== 1 ? `(×${ratio.toFixed(2).replace(/\.?0+$/, "")})` : "";
+        document.querySelectorAll(".ing-amount").forEach((el) => {
+          const base = parseFloat(el.dataset.base);
+          const unit = el.dataset.unit;
+          if (!isNaN(base)) {
+            const scaled = base * ratio;
+            const fmt = Number.isInteger(scaled) ? scaled : +scaled.toFixed(2);
+            el.textContent = unit ? `${fmt} ${unit}` : `${fmt}`;
+          }
+        });
+      }
+
+      document.getElementById("dec").addEventListener("click", () => { if (current > 1) { current--; updateServings(); } });
+      document.getElementById("inc").addEventListener("click", () => { current++; updateServings(); });
+
+      // ── Checklist de ingredientes ──
+      document.querySelectorAll(".ingredients-list input[type=checkbox]").forEach((chk) => {
+        chk.addEventListener("change", () => {
+          chk.closest("li").classList.toggle("checked", chk.checked);
+        });
+      });
+
+      // ── Timers por paso ──
+      document.querySelectorAll(".timer-btn").forEach((btn) => {
+        const display = btn.nextElementSibling;
+        let interval = null;
+        let remaining = 0;
+        btn.addEventListener("click", () => {
+          if (interval) { clearInterval(interval); interval = null; btn.textContent = `${btn.dataset.minutes} min`; display.style.display = "none"; return; }
+          remaining = parseInt(btn.dataset.minutes) * 60;
+          display.style.display = "";
+          btn.textContent = "Detener";
+          const tick = () => {
+            if (remaining <= 0) { clearInterval(interval); interval = null; display.textContent = "Listo!"; btn.textContent = `${btn.dataset.minutes} min`; return; }
+            const m = Math.floor(remaining / 60).toString().padStart(2, "0");
+            const s = (remaining % 60).toString().padStart(2, "0");
+            display.textContent = `${m}:${s}`;
+            remaining--;
+          };
+          tick();
+          interval = setInterval(tick, 1000);
+        });
+      });
+    </script>
+  </body>
+</html>

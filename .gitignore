@@ -16,10 +16,11 @@ env/
 .coverage
 htmlcov/
 
-# --- Node / Astro (Fase 3) ---
+# --- Node / Astro ---
 node_modules/
 .astro/
 .output/
+app/dist/
 
 # --- OS / Editor ---
 .DS_Store
