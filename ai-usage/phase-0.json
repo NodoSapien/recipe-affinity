@@ -1,0 +1,34 @@
+{
+  "phase": 0,
+  "title": "Scaffold + dominio + FileRepository",
+  "date": "2026-06-21",
+  "author": "@Jrgil20",
+  "tool": {
+    "name": "Claude Code",
+    "model": "claude-opus-4-8"
+  },
+  "ai_generated": [
+    "Estructura de paquetes (core/, adapters/, tests/) y archivos marcadores",
+    "pyproject.toml, .gitignore, README.md",
+    "core/domain/recipe.py (Recipe + Ingredient: new/from_dict/to_dict/make_slug)",
+    "core/domain/taste_profile.py (TasteProfile sin scoring)",
+    "core/ports/{recipe_repository,recipe_source,page_renderer}.py (Protocol)",
+    "adapters/file_repository.py (save atómico / get / list / exists / delete)",
+    "preferences.json (semilla, datos del ejemplo de CLAUDE.md)",
+    "tests/ (conftest + recipe + taste_profile + file_repository): 13 tests",
+    "docs/ARCHITECTURE.md"
+  ],
+  "human_modified": [],
+  "verification": {
+    "pytest": "13 passed",
+    "ruff": "All checks passed",
+    "dependency_rule": "core/ no importa adapters/ (verificado por AST)",
+    "smoke": "recipes/pasta-al-pesto.json creado y releído sin pérdida"
+  },
+  "out_of_scope_next": {
+    "fase_1": "skill recipe-fetcher + adapters/jsonld_source.py",
+    "fase_2": "skill recipe-classifier + core/domain/affinity.py",
+    "fase_3": "skill recipe-page-builder + app Astro",
+    "fase_4": "adapters/supabase_repository.py"
+  }
+}

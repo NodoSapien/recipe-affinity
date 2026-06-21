@@ -1,0 +1,26 @@
+[project]
+name = "recipe-affinity"
+version = "0.1.0"
+description = "Recetario personal AI-first: descarga, clasifica y publica recetas alineadas a tus gustos."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Jrgil20" }]
+license = { text = "MIT" }
+# Sin dependencias de runtime en Fase 0; el scraping (recipe-scrapers) llega en Fase 1.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+# El layout es plano (core/, adapters/ en la raíz), sin instalar el paquete:
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# Reglas por defecto + import sorting.
+extend-select = ["I"]

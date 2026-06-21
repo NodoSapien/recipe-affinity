@@ -1,0 +1,12 @@
+{
+  "loved_cuisines": ["italiana", "japonesa"],
+  "avoided_ingredients": ["cilantro"],
+  "diet_constraints": [],
+  "weights": {
+    "cuisine": 0.3,
+    "main_ingredients": 0.3,
+    "diet_tags": 0.2,
+    "difficulty": 0.1,
+    "time": 0.1
+  }
+}
