@@ -29,6 +29,14 @@ python skills/recipe-fetcher/fetch_recipe.py "https://www.bbcgoodfood.com/recipe
 # -> recipes/easy-chocolate-cake.json
 ```
 
+## App web
+
+```bash
+cd app
+pnpm dev      # servidor de desarrollo
+pnpm build    # export estático -> app/dist/
+```
+
 ## Stack
 
 - **Dominio + adaptadores + skills:** Python (≥ 3.11).
@@ -42,6 +50,8 @@ python -m pip install -e ".[dev]"   # o: pip install pytest ruff
 python -m pytest                     # tests verdes
 python -m ruff check .               # lint
 ```
+
+> Gestor de paquetes Node: **pnpm** (no npm).
 
 ## Estructura
 

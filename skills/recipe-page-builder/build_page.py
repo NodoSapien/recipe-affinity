@@ -53,8 +53,8 @@ def main() -> None:
     if args.build:
         app_dir = ROOT / "app"
         print("[BUILD] Ejecutando astro build...")
-        npm = "npm.cmd" if sys.platform == "win32" else "npm"
-        result = subprocess.run([npm, "run", "build"], cwd=app_dir, check=False)
+        pnpm = "pnpm.cmd" if sys.platform == "win32" else "pnpm"
+        result = subprocess.run([pnpm, "build"], cwd=app_dir, check=False)
         if result.returncode != 0:
             print("[ERROR] astro build fallo", file=sys.stderr)
             sys.exit(result.returncode)

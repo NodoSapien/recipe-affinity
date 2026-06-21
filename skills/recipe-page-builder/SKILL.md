@@ -50,7 +50,7 @@ python skills/recipe-page-builder/build_page.py pasta-al-pesto
 python skills/recipe-page-builder/build_page.py --all --build
 
 # Ver la app en desarrollo:
-cd app && npm run dev
+cd app && pnpm dev
 ```
 
 ## Flujo completo (las tres skills encadenadas)
